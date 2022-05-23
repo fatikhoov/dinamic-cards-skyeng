@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+    <div class="container" @click.prevent id="app">
+      <div class="query">
+        <input
+          v-model="searchquery"
+          id="send"
+          type="text"
+          placeholder="Например: ozon"
+        />
+
+        <button type="submit" @click="push">Запросить</button>
+        <hr />
+      </div>
+      <div v-if="!sends" class="loader">
+        <h3>Добрый день!<br />Напишите пожалуйста свой запрос</h3>
+      </div>
+      <div v-else class="btnService">
+        <button type="submit" @click="btn" value="0">
+          Рускоязычный спикер
+        </button>
+        <button type="submit" @click="btn" value="1">
+          Англоязычный преподаватель
+        </button>
+        <button type="submit" @click="btn" value="2">Преимиум тариф</button>
+        <button type="submit" @click="btn" value="3">
+          Дополнительная практика
+        </button>
+
+        <div class="cards">
+          <div class="card_item" v-for="item in one" :key="item.uuid">
+            <div>
+              <p>
+                {{item.quantity}} {{declOfNum(item.quantity, ['Урок', 'Урока',
+                'Уроков'])}}
+              </p>
+              <br />
+              <p v-show="item.costWithoutDiscount != item.cost">
+                <s>
+                  {{ Math.round(item.costWithoutDiscount / item.quantity) }}₽<br />
+                </s>
+              </p>
+              <p>
+                {{ item.cost / item.quantity }}₽<br />
+                за занятие
+              </p>
+              <br />
+              <p v-show="item.costWithoutDiscount != item.cost">
+                Экономия <br />
+                {{ item.costWithoutDiscount - item.cost }}₽ за пакет<br />
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./vue_axios_cards.js" type="module"></script>
+    <style>
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        flex-wrap: nowrap;
+      }
+      .query {
+        margin: 20px 40px;
+      }
+      .cards {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin: 10px 0px;
+        overflow: auto;
+      }
+      .card_item {
+        padding: 10px;
+        margin: 10px;
+        border-radius: 10px;
+        border: 1px solid grey;
+        width: 340px;
+      }
+      div {
+        width: 100%;
+      }
+    </style>
+  </body>
+</html>

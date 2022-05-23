@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <title>Fatikhov Vladislav</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="query">
+        <h3>SkyEng</h3>
+        <input
+          id="send"
+          type="text"
+          placeholder="Напишите запрос"
+          onfocus="this.value='ozon'"
+        />
+        <button type="submit" onclick="push(this.value)" value="0">
+          Отправить
+        </button>
+      </div>
+      <hr />
+      <div id="btn" class="btns">
+        <div class="btnService">
+          <button type="submit" onclick="push(this.value)" value="0">
+            рускоязычный спикер
+          </button>
+          <button type="submit" onclick="push(this.value)" value="1">
+            англоязычный преподаватель
+          </button>
+          <button type="submit" onclick="push(this.value)" value="2">
+            преимиум тариф
+          </button>
+          <button type="submit" onclick="push(this.value)" value="3">
+            дополнительная практика
+          </button>
+        </div>
+      </div>
+      <hr />
+      <div class="cards"></div>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script>
+      $('#btn').hide()
+      count = 0
+
+      async function push(v) {
+        count = v
+        $('#btn').show()
+        let cards = document.querySelector('.cards')
+        $('.cards').empty() //очистил контейнер
+        let send = document.getElementById('send').value
+        let response = await fetch(
+          'https://corporate-marketing-backend.skyeng.ru/landing/public/v2/prices/by-preferred-link/' +
+            send
+        )
+        let content = await response.json()
+        content = await content.data.filter(
+          //фильтр массива по клчам
+          (el) =>
+            el.serviceTypeKey == 'english_adult_not_native_speaker' ||
+            el.serviceTypeKey == 'english_adult_native_speaker' ||
+            el.serviceTypeKey == 'english_adult_not_native_speaker_premium' ||
+            el.serviceTypeKey ==
+              'english_adult_not_native_speaker_partial_auto_lesson'
+        )
+        let newArr = await content[count].positions
+        function declOfNum(n, text_forms) {
+          //Вывод окончания слова по числу
+          n = Math.abs(n) % 100
+          var n1 = n % 10
+          if (n > 10 && n < 20) {
+            return text_forms[2]
+          }
+          if (n1 > 1 && n1 < 5) {
+            return text_forms[1]
+          }
+          if (n1 == 1) {
+            return text_forms[0]
+          }
+          return text_forms[2]
+        }
+        let elem //динамические карточки
+        for (const elem in newArr) {
+          cards.innerHTML += `
+        <div class="card"> 
+            <p>
+               ${newArr[elem].quantity}
+               ${declOfNum(newArr[elem].quantity, [
+                 'Урок',
+                 'Урока',
+                 'Уроков',
+               ])}  
+            </p>
+              ${
+                newArr[elem].costWithoutDiscount <= newArr[elem].cost
+                  ? ''
+                  : `<p><s>` +
+                    Math.round(
+                      newArr[elem].costWithoutDiscount / newArr[elem].quantity
+                    ) +
+                    `₽</s></p>`
+              }
+            <p>
+               ${newArr[elem].cost / newArr[elem].quantity}₽ за занятие
+                </p>
+                ${
+                  newArr[elem].costWithoutDiscount <= newArr[elem].cost
+                    ? ''
+                    : `<p> Экономия ` +
+                      (newArr[elem].costWithoutDiscount - newArr[elem].cost) +
+                      `₽ за пакет</p>`
+                } 
+        </div>`
+        }
+        document.getElementById('send').value = ''
+      }
+    </script>
+    <style>
+      .container {
+        margin: auto;
+        padding: 2rem 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        border: 1px solid black;
+      }
+      .cards {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .card {
+        overflow: hidden;
+        white-space: normal;
+        border: 1px solid dimgray;
+        text-align: center;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 10px;
+        width: 360px;
+      }
+      button {
+        padding: 0.2rem 1rem;
+        border-radius: 5px;
+      }
+    </style>
+  </body>
+</html>
